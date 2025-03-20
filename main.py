@@ -1,34 +1,40 @@
 # 3, 11, 31, 69, 131, 223
-# 1, 32, 243, 1024, 3125, 7776, 16807
-# 0.5, 16, 121.5, 512, 1562.5, 3888, 8403.5
-# -1.5, 14, 119.5, 510, 1560.5, 3886, 8401.5
-# 3, -8, -51, -144, -305
-# 1, 64, 729, 4096, 15625, 46656, 117649, 262144
-# 0.0, 2.0, 96.0, 972.0, 5120.0, 18750.0, 54432.0, 134456.0, 294912.0
-# 0.0, 2.0, 94.0, 876.0, 4148.0, 13630.0, 35682.0, 80024.0, 160456.0 koydugumda buga giriyor
-def pyramid_maker(sequence):
 
+'''
+Matrix ile cozum denicem
+Bu programlari anlamayi denicem
+Sifre cozucu ASCII numaralari kullanilarak yapilabilir
+Bu matrixin cozulebilirligi nereden biliniyor
+
+Program crashes when I give 0, 0, 0, 0, 0 !!!
+'''
+
+from sympy import symbols, Eq, solve
+
+def pyramid_maker(sequence):
     # Define the pyramid as a list of lists
     pyramid = [sequence]
-
-    # Build the pyramid
+    
+    # Build the pyramid with proper floating-point arithmetic
     while len(pyramid[-1]) > 1:
         current_row = pyramid[-1]
-        next_row = [current_row[i + 1] - current_row[i] for i in range(len(current_row) - 1)]
+        # Use round to handle floating point precision issues
+        next_row = [round(current_row[i + 1] - current_row[i], 6) for i in range(len(current_row) - 1)]
         if next_row == pyramid[-1][-len(next_row):]:
             break
         pyramid.append(next_row)
 
-    # Print the pyramid
+    # Print the pyramid with proper formatting
     for row in pyramid:
-        print(" ".join([str(x) for x in row]).center(50))
+        formatted_row = " ".join([f"{x:8.3f}" for x in row])
+        print(formatted_row.center(80))
 
     # Check if the bottom row of the pyramid contains only 0's
-    if not all(x == 0 for x in pyramid[-1]):
-        return "Couldn't find the function, please provide more data"
+    # if not all(x == 0 for x in pyramid[-1]):
+    #     return "Couldn't find the function, please provide more data"
 
     # Extract the left lane numbers
-    left_lane = [pyramid[i][0] for i in range(len(pyramid)) if pyramid[i][0] != 0]
+    left_lane = [pyramid[i][0] for i in range(len(pyramid)) if i != len(pyramid) - 1 or pyramid[i][0] != 0]
 
     # Assign the left lane numbers to variables a0, a1, a2, ...
     K = len(left_lane) - 1
@@ -39,57 +45,62 @@ def pyramid_maker(sequence):
     # Return the variables dictionary and K
     return (K, variables)
 
-def coefficient_calculation_3(K, variables):
-    """ This function can calculate up to polynomials with a maximum degree of 6
-    using ready-made templates, which is a limited but easy method."""
+def comb(n, k):
+    result = 1
 
-    coefficents = {}
+    for i in range(1, k+1):
+        result *= n - k + i
+        result //= i
+
+    return result
+
+def coefficient_calculation_loop(H, J, P, K, L=2):
+    result = 0
+
     for i in range(K + 1):
-        coefficents["n{}".format(i)] = 0
+        coefficient = (-1) ** i * comb(H, i)
+        term = coefficient * (L * (H - i) + P) ** J
+        result += term
 
-    if K == 0:
-        coefficents['n0'] = 1 * variables['a0']
+    return result
 
-    if K == 1:
-        coefficents['n0'] = 1 * variables['a0']
-        coefficents['n1'] = 1 * variables['a1'] - 1 * coefficents['n0']
+def calculate_variables(variables, K, P, L):
 
-    if K == 2:
-        coefficents['n0'] = 1 * variables['a0'] / 2
-        coefficents['n1'] = 1 * variables['a1'] - 3 * coefficents['n0']
-        coefficents['n2'] = 1 * variables['a2'] - 1 * coefficents['n0'] - 1 * coefficents['n1']
+    pivot = []
+    for J in range(K, -1, -1):
+        temp_list = []
+        for H in range(K, -1, -1):
+            r = coefficient_calculation_loop(H, J, P, K, L)
+            temp_list.append(r)
+        pivot.append(temp_list)
 
-    if K == 3:
-        coefficents['n0'] = 1 * variables['a0'] / 6
-        coefficents['n1'] = (1 * variables['a1'] - 12 * coefficents['n0']) / 2
-        coefficents['n2'] = 1 * variables['a2'] - 7 * coefficents['n0'] - 3 * coefficents['n1']
-        coefficents['n3'] = 1 * variables['a3'] - 1 * coefficents['n0'] - 1 * coefficents['n1'] - 1 * coefficents['n2']
+    symbols_str = " ".join([f"n{i}" for i in range(len(variables))])
+    symbols_tuple = symbols(symbols_str)
 
-    if K == 4:
-        coefficents['n0'] = 1 * variables['a0'] / 24
-        coefficents['n1'] = (1 * variables['a1'] - 60 * coefficents['n0']) / 6
-        coefficents['n2'] = (1 * variables['a2'] - 50 * coefficents['n0'] - 12 * coefficents['n1']) / 2
-        coefficents['n3'] = 1 * variables['a3'] - 15 * coefficents['n0'] - 7 * coefficents['n1'] - 3 * coefficents['n2']
-        coefficents['n4'] = 1 * variables['a4'] - 1 * coefficents['n0'] - 1 * coefficents['n1'] - 1 * coefficents['n2'] - 1 * coefficents['n3']
+    equations = []
+    for i, (key, value) in enumerate(variables.items()):
+        equation = value
+        for j in range(i + 1):
+            equation -= symbols_tuple[j] * pivot[j][i]
+        equations.append(Eq(equation, 0))
 
-    if K == 5:
-        coefficents['n0'] = 1 * variables['a0'] / 120
-        coefficents['n1'] = (1 * variables['a1'] - 360 * coefficents['n0']) / 24
-        coefficents['n2'] = (1 * variables['a2'] - 390 * coefficents['n0'] - 60 * coefficents['n1']) / 6
-        coefficents['n3'] = (1 * variables['a3'] - 180 * coefficents['n0'] - 50 * coefficents['n1'] - 12 * coefficents['n2']) / 2
-        coefficents['n4'] = 1 * variables['a4'] - 31 * coefficents['n0'] - 15 * coefficents['n1'] - 7 * coefficents['n2'] - 3 * coefficents['n3']
-        coefficents['n5'] = 1 * variables['a5'] - 1 * coefficents['n0'] - 1 * coefficents['n1'] - 1 * coefficents['n2'] - 1 * coefficents['n3'] - 1 * coefficents['n4']
+    sol = solve(equations, symbols_tuple)
 
-    if K == 6:
-        coefficents['n0'] = variables['a0'] / 720
-        coefficents['n1'] = (variables['a1'] - 2520 * coefficents['n0']) / 120
-        coefficents['n2'] = (variables['a2'] - 3360 * coefficents['n0'] - 360 * coefficents['n1']) / 24
-        coefficents['n3'] = (variables['a3'] - 2100 * coefficents['n0'] - 390 * coefficents['n1'] - 60 * coefficents['n2']) / 6
-        coefficents['n4'] = (variables['a4'] - 602 * coefficents['n0'] - 180 * coefficents['n1'] - 50 * coefficents['n2'] - 12 * coefficents['n3']) / 2
-        coefficents['n5'] = variables['a5'] - 63 * coefficents['n0'] - 31 * coefficents['n1'] - 15 * coefficents['n2'] - 7 * coefficents['n3'] - 3 * coefficents['n4']
-        coefficents['n6'] = variables['a6'] - coefficents['n0'] - coefficents['n1'] - coefficents['n2'] - coefficents['n3'] - coefficents['n4'] - coefficents['n5']
+    # Round the coefficients to 6 decimal places and clean up near-zero values
+    cleaned_coefficients = {}
+    for i in range(len(variables)):
+        value = float(sol[symbols_tuple[i]])
+        # If the value is very close to a whole number, round it
+        if abs(value - round(value)) < 1e-10:
+            value = round(value)
+        # If the value is very close to zero, make it zero
+        elif abs(value) < 1e-10:
+            value = 0
+        else:
+            value = round(value, 6)
+        cleaned_coefficients[f"n{i}"] = value
 
-    return coefficents
+    return cleaned_coefficients
 
 # Menu
 print("Welcome to the polynomial sequence finder!")
@@ -99,7 +110,10 @@ sequence = input().split(",")
 sequence = [float(x) for x in sequence]
 
 print("\nYou entered the sequence:", sequence)
+P = float(input("Enter the starting value: "))
+L = float(input("Enter the difference interval between the values: "))
 print("")
+
 result = pyramid_maker(sequence)
 
 if isinstance(result, tuple):
@@ -115,11 +129,20 @@ if isinstance(result, tuple):
     print("K =", K)
     print(polynomial)
 
-    coefficents = coefficient_calculation_3(K, variables)
+    coefficents = calculate_variables(variables, K, P, L)
+    print(coefficents)
     polynomial = "Key = P(x) = "
     for i in range(K):
-        polynomial += "{}x^{} + ".format(coefficents['n{}'.format(i + 1)], K - i)
-    polynomial += "{}".format(coefficents['n{}'.format(K)])
+        coeff = coefficents[f'n{i}']
+        # Only add term if coefficient is not zero
+        if coeff != 0:
+            if coeff == 1:
+                polynomial += f"x^{K-i} + "
+            elif coeff == -1:
+                polynomial += f"-x^{K-i} + "
+            else:
+                polynomial += f"{coeff}x^{K-i} + "
+    polynomial += f"{coefficents[f'n{K}']}"
     print("")
     print(polynomial)
 else:
