@@ -1,6 +1,6 @@
 # Teorem Project
 
-## How I Started Coding
+## How I Started Coding (February 2023)
 
 This project is where my coding journey began. I created a math theorem called the Akin Isolation Matrices Method, which helps solve polynomial problems. To make it work better, I needed to write some code - and that's how I fell in love with programming!
 
