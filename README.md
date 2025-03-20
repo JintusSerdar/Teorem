@@ -1,28 +1,24 @@
 # Teorem Project
 
-## My Coding Journey
+## How I Started Coding
 
-This repository represents my first steps into the world of programming. What started as a mathematical theorem exploration became the catalyst that ignited my passion for coding.
+This project is where my coding journey began. I created a math theorem called the Akin Isolation Matrices Method, which helps solve polynomial problems. To make it work better, I needed to write some code - and that's how I fell in love with programming!
 
-## About the Project
+## What's In Here
 
-This project contains various Python scripts that I've written to test and improve my understanding of the theorem. Through multiple iterations and tests, I've developed different approaches to solve and analyze the problem.
+I wrote a bunch of Python scripts to test my theorem and make it work. The more I coded, the more I learned, and the better my programs got.
 
-### Key Files
-- `Program_Matrix.py`: Matrix-based implementation
-- `Program_Import.py`: Core implementation with imports
-- `proValueGenerator.py`: Value generation algorithms
-- `teoremTest.py`: Testing framework
-- Various test files (test 1-15): Different iterations and approaches I explored
+### Files You'll Find
+- Multiple test scripts (`test1.py` through `test15.py`) documenting my learning process
+- Value generation scripts (`value generator.py`, `proValueGenerator.py`)
+- Matrix operations (`Program_Matrix.py`)
+- Main program implementations (`main.py`, `Program_Import.py`)
+- Various testing and calculation modules
 
-## Learning Journey
-
-This project documents my progression from initial experiments to more structured implementations. Each test file represents a different approach or improvement in my understanding of both the theorem and programming concepts.
-
-## Technologies Used
+## Tools Used
 - Python
-- Matrix operations
-- Mathematical algorithms
+- Some matrix math
+- Basic algorithms
 
 ---
-*This project is a personal learning journey and represents my first venture into programming.*
+*This was my first coding project, and it opened the door to many more exciting projects to come!*
